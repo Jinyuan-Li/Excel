@@ -172,7 +172,7 @@ if check_list[9] == 0:
         wb_BVI.close()
         wb_sum.sheets["工作表2"].range('B10').value = 1
     except:
-        print('BVIG檔案可能不存在')     
+        print('BVI檔案可能不存在')     
         
         
 if check_list[10] == 0:
@@ -182,7 +182,7 @@ if check_list[10] == 0:
         wb_SVI.close()
         wb_sum.sheets["工作表2"].range('B11').value = 1
     except:
-        print('SVIG檔案可能不存在') 
+        print('SVI檔案可能不存在') 
         
         
 if check_list[11] == 0:
