@@ -1,0 +1,166 @@
+from datetime import timedelta, datetime
+import xlwings as xw
+
+
+#自動產生報表日，每天做前一個工作日的報表，而前一個工作日的報表可能需要再前一個工作日的報表
+adj_day = 0
+report_day = datetime.today() - timedelta(1 - adj_day)
+if(datetime.today().isoweekday() == 1):
+    report_day = report_day - timedelta(2 - adj_day)
+
+report_yday = report_day - timedelta(1 - adj_day)
+if(datetime.today().isoweekday() == 2):
+    report_yday = report_yday - timedelta(2 - adj_day)
+
+report_tday = report_day + timedelta(1)
+YYYY, YYYYy, YYYYt = str(report_day.year), str(report_yday.year), str(report_tday.year)
+YY, YYy, YYt  = report_day.strftime( '%y' ), report_yday.strftime( '%y' ), report_tday.strftime( '%y' )
+MM, MMy, MMt = str('%02d' % report_day.month), str('%02d' % report_yday.month), str('%02d' % report_tday.month)
+DD, DDy, DDt = str('%02d' % report_day.day), str('%02d' % report_yday.day), str('%02d' % report_tday.day)
+date1, datey, datet = YYYY + '-' + MM + '-' + DD, YYYYy + '-' + MMy + '-' + DDy, YYYYt + '-' + MMt + '-' + DDt
+
+
+#讀取資料來源檔案，路徑、檔名與頁面名稱為保護公司資料有做修改
+app = xw.App(visible=True,add_book=False)
+wb_eod = xw.Book(r'C:\\Users\\0214\\Downloads\\EOD - ' + YYYY + '.' + MM + '.' + DD + '.csv')
+row_eod_new = wb_eod.sheets["sheet1"].range('A1').current_region.last_cell.row
+df_eod = wb_eod.sheets["sheet1"].range('A2:F' + str(row_eod_new)).value
+#wb_eod.close()
+
+
+def equity_main():
+    wb_main = xw.Book(r'D:\\Report\\equity-auto\\equ-auto-' + MMy + DDy + '.xlsx')
+    wb_datam = xw.Book('C:\\Users\\0214\\Downloads\\' + date1 + '_Vres.xlsx')
+    
+    copy_paste_m2 = wb_main.sheets["sheet2"].range('N32:V52').value
+    wb_main.sheets["sheet2"].range('N6').value = copy_paste_m2
+    
+    copy_paste_m3 = wb_main.sheets["sheet3"].range('N22:V32').value
+    wb_main.sheets["sheet3"].range('N5').value = copy_paste_m3
+    
+    row_MT5_newm = wb_datam.sheets["sheet4"].range('A1').current_region.last_cell.row
+    df_MT5m = wb_datam.sheets["sheet4"].range('A2:P' + str(row_MT5_newm)).value
+    row_MT5_oldm = wb_main.sheets["sheet4"].range('A1').current_region.last_cell.row
+    wb_main.sheets["sheet4"].range('A2').options(index=False, header=False).value = df_MT5m
+    if row_MT5_newm < row_MT5_oldm:
+        wb_main.sheets["sheet4"].range('A' + str(row_MT5_newm + 1) + ':P' + str(row_MT5_oldm)).value = None
+    if row_MT5_newm > row_MT5_oldm:
+        paste_formulama = wb_main.sheets["sheet4"].range('Q' + str(row_MT5_oldm) + ':V' + str(row_MT5_oldm)).options(ndim=1).formula
+        wb_main.sheets["sheet4"].range('Q' + str(row_MT5_oldm) + ':V' + str(row_MT5_newm)).options(ndim=1).formula = paste_formulama
+    
+    row_IXS_newm = wb_datam.sheets["sheet5"].range('A1').current_region.last_cell.row
+    df_IXSm = wb_datam.sheets["sheet5"].range('A2:P' + str(row_IXS_newm)).value
+    row_IXS_oldm = wb_main.sheets["sheet5"].range('A1').current_region.last_cell.row
+    wb_main.sheets["sheet5"].range('A2').options(index=False, header=False).value = df_IXSm
+    if row_IXS_newm < row_IXS_oldm:
+        wb_main.sheets["sheet5"].range('A' + str(row_IXS_newm + 1) + ':P' + str(row_IXS_oldm)).value = None
+    if row_IXS_newm > row_IXS_oldm:
+        paste_formulami = wb_main.sheets["sheet5"].range('Q' + str(row_IXS_oldm) + ':U' + str(row_IXS_oldm)).options(ndim=1).formula
+        wb_main.sheets["sheet5"].range('Q' + str(row_IXS_oldm) + ':U' + str(row_IXS_newm)).options(ndim=1).formula = paste_formulami
+    
+    row_raw_newm = wb_datam.sheets["sheet6"].range('A1').current_region.last_cell.row
+    df_rawm = wb_datam.sheets["sheet6"].range('A2:L' + str(row_raw_newm)).value
+    row_raw_oldm = wb_main.sheets["sheet6"].range('A1').current_region.last_cell.row
+    wb_main.sheets["sheet6"].range('A2').options(index=False, header=False).value = df_rawm
+    if row_raw_newm < row_raw_oldm:
+        wb_main.sheets["sheet6"].range('A' + str(row_raw_newm + 1) + ':L' + str(row_raw_oldm)).value = None
+    if row_raw_newm > row_raw_oldm:
+        paste_formulamr = wb_main.sheets["sheet6"].range('O' + str(row_raw_oldm) + ':U' + str(row_raw_oldm)).options(ndim=1).formula
+        wb_main.sheets["sheet6"].range('O' + str(row_raw_oldm) + ':U' + str(row_raw_newm)).options(ndim=1).formula = paste_formulamr
+    
+    row_eod_oldm = wb_main.sheets["EOD"].range('A1').current_region.last_cell.row
+    wb_main.sheets["EOD"].range('A2').options(index=False, header=False).value = df_eod
+    if row_eod_new < row_eod_oldm:
+        wb_main.sheets["EOD"].range('A' + str(row_eod_new + 1) + ':F' + str(row_eod_oldm)).value = None
+    
+    wb_datam.close()
+    
+    wb_main.save(r'D:\\Report\\equity-auto\\equ-auto-' + MM + DD + '.xlsx')
+
+    copy_paste_m1 = wb_main.sheets["sheet1"].range('N29:V51').value
+    wb_main.sheets["sheet1"].range('B29').value = copy_paste_m1
+    
+    wb_main.sheets["sheet1"].select()
+    wb_main.api.ActiveSheet.PivotTables("数据透视表1").PivotCache().refresh()
+    wb_main.api.ActiveSheet.PivotTables("樞紐分析表4").PivotCache().refresh()
+    wb_main.api.ActiveSheet.PivotTables("樞紐分析表3").PivotCache().refresh()
+    wb_main.sheets["sheet2"].select()
+    wb_main.api.ActiveSheet.PivotTables("樞紐分析表1").PivotCache().refresh()
+    wb_main.api.ActiveSheet.PivotTables("樞紐分析表2").PivotCache().refresh()
+    wb_main.sheets["sheet3"].select()
+    wb_main.api.ActiveSheet.PivotTables("数据透视表3").PivotCache().refresh()
+    wb_main.api.ActiveSheet.PivotTables("数据透视表4").PivotCache().refresh()
+    
+    wb_main.save(r'D:\\Report\\equity-auto\\equ-auto-' + MM + DD + '.xlsx')
+
+
+def equity_sub():
+    wb_subn = xw.Book(r'D:\\Report\\equity-auto\\equ-auto-' + MMy + DDy + 'sub.xlsx')
+    wb_datas = xw.Book('C:\\Users\\0214\\Downloads\\' + date1 + '_Vres_n.xlsx')
+    
+    copy_paste_s2 = wb_subn.sheets["sheet2"].range('N32:V52').value
+    wb_subn.sheets["sheet2"].range('N6').value = copy_paste_s2
+    
+    copy_paste_s3 = wb_subn.sheets["sheet3"].range('N22:V32').value
+    wb_subn.sheets["sheet3"].range('N6').value = copy_paste_s3
+    
+    row_MT5_news = wb_datas.sheets["sheet4"].range('A1').current_region.last_cell.row
+    df_MT5s = wb_datas.sheets["sheet4"].range('A2:P' + str(row_MT5_news)).value
+    row_MT5_olds = wb_subn.sheets["sheet4"].range('A1').current_region.last_cell.row
+    wb_subn.sheets["sheet4"].range('A2').options(index=False, header=False).value = df_MT5s
+    if row_MT5_news < row_MT5_olds:
+        wb_subn.sheets["sheet4"].range('A' + str(row_MT5_news + 1) + ':P' + str(row_MT5_olds)).value = None
+    if row_MT5_news > row_MT5_olds:
+        paste_formulasa = wb_subn.sheets["sheet4"].range('Q' + str(row_MT5_olds) + ':V' + str(row_MT5_olds)).options(ndim=1).formula
+        wb_subn.sheets["sheet4"].range('Q' + str(row_MT5_olds) + ':V' + str(row_MT5_news)).options(ndim=1).formula = paste_formulasa
+    
+    row_IXS_news = wb_datas.sheets["sheet5"].range('A1').current_region.last_cell.row
+    df_IXSs = wb_datas.sheets["sheet5"].range('A2:P' + str(row_IXS_news)).value
+    row_IXS_olds = wb_subn.sheets["sheet5"].range('A1').current_region.last_cell.row
+    wb_subn.sheets["sheet5"].range('A2').options(index=False, header=False).value = df_IXSs
+    if row_IXS_news < row_IXS_olds:
+        wb_subn.sheets["sheet5"].range('A' + str(row_IXS_news + 1) + ':P' + str(row_IXS_olds)).value = None
+    if row_IXS_news > row_IXS_olds:
+        paste_formulasi = wb_subn.sheets["sheet5"].range('Q' + str(row_IXS_olds) + ':V' + str(row_IXS_olds)).options(ndim=1).formula
+        wb_subn.sheets["sheet5"].range('Q' + str(row_IXS_olds) + ':V' + str(row_IXS_news)).options(ndim=1).formula = paste_formulasi
+    
+    row_raw_news = wb_datas.sheets["sheet6"].range('A1').current_region.last_cell.row
+    df_raws = wb_datas.sheets["sheet6"].range('A2:L' + str(row_raw_news)).value
+    row_raw_olds = wb_subn.sheets["sheet6"].range('A1').current_region.last_cell.row
+    wb_subn.sheets["sheet6"].range('A2').options(index=False, header=False).value = df_raws
+    if row_raw_news < row_raw_olds:
+        wb_subn.sheets["sheet6"].range('A' + str(row_raw_news + 1) + ':L' + str(row_raw_olds)).value = None
+    if row_raw_news > row_raw_olds:
+        paste_formulasr = wb_subn.sheets["sheet6"].range('O' + str(row_raw_olds) + ':U' + str(row_raw_olds)).options(ndim=1).formula
+        wb_subn.sheets["sheet6"].range('O' + str(row_raw_olds) + ':U' + str(row_raw_news)).options(ndim=1).formula = paste_formulasr
+    
+    row_eod_olds = wb_subn.sheets["EOD"].range('A1').current_region.last_cell.row
+    wb_subn.sheets["EOD"].range('A2').options(index=False, header=False).value = df_eod
+    if row_eod_new < row_eod_olds:
+        wb_subn.sheets["EOD"].range('A' + str(row_eod_new + 1) + ':F' + str(row_eod_olds)).value = None
+    
+    wb_datas.close()
+    
+    wb_subn.save(r'D:\\Report\\equity-auto\\equ-auto-' + MM + DD + 'sub.xlsx')
+
+    copy_paste_s1 = wb_subn.sheets["sheet1"].range('N29:V51').value
+    wb_subn.sheets["sheet1"].range('B29').value = copy_paste_s1
+    
+    wb_subn.sheets["sheet1"].select()
+    wb_subn.api.ActiveSheet.PivotTables("数据透视表1").PivotCache().refresh()
+    wb_subn.api.ActiveSheet.PivotTables("樞紐分析表7").PivotCache().refresh()
+    wb_subn.api.ActiveSheet.PivotTables("樞紐分析表5").PivotCache().refresh()
+    wb_subn.sheets["sheet2"].select()
+    wb_subn.api.ActiveSheet.PivotTables("樞紐分析表1").PivotCache().refresh()
+    wb_subn.api.ActiveSheet.PivotTables("樞紐分析表4").PivotCache().refresh()
+    wb_subn.sheets["sheet3"].select()
+    wb_subn.api.ActiveSheet.PivotTables("数据透视表3").PivotCache().refresh()
+    wb_subn.api.ActiveSheet.PivotTables("数据透视表4").PivotCache().refresh()
+    
+    wb_subn.save(r'D:\\Report\\equity-auto\\equ-auto-' + MM + DD + 'sub.xlsx')
+
+
+equity_main()
+equity_sub()
+app.quit()
+
