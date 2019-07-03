@@ -1,0 +1,214 @@
+import pandas as pd
+from datetime import timedelta, datetime
+import xlwings as xw
+
+
+#自動產生報表日，每天做前一個工作日的報表，而前一個工作日的報表可能需要再前一個工作日的報表
+adj_day = 0
+report_day = datetime.today() - timedelta(1 - adj_day)
+if(datetime.today().isoweekday() == 1):
+    report_day = report_day - timedelta(2 - adj_day)
+
+report_yday = report_day - timedelta(1 - adj_day)
+if(datetime.today().isoweekday() == 2):
+    report_yday = report_yday - timedelta(2 - adj_day)
+
+report_tday = report_day + timedelta(1)
+YYYY, YYYYy, YYYYt = str(report_day.year), str(report_yday.year), str(report_tday.year)
+YY, YYy, YYt  = report_day.strftime( '%y' ), report_yday.strftime( '%y' ), report_tday.strftime( '%y' )
+MM, MMy, MMt = str('%02d' % report_day.month), str('%02d' % report_yday.month), str('%02d' % report_tday.month)
+DD, DDy, DDt = str('%02d' % report_day.day), str('%02d' % report_yday.day), str('%02d' % report_tday.day)
+date1, datey, datet = YYYY + '-' + MM + '-' + DD, YYYYy + '-' + MMy + '-' + DDy, YYYYt + '-' + MMt + '-' + DDt
+
+
+#讀取資料來源檔案，路徑、檔名與頁面名稱為保護公司資料有做修改
+app = xw.App(visible=True,add_book=False)
+wb_sum = xw.Book(r'D:\\Report\\Summary.xlsx')
+check_list = wb_sum.sheets["工作表2"].range('B1:B20').value
+
+
+if check_list[0] == 0:
+    try:
+        wb_CF = xw.Book('\\\\ip\\path\\VAN-CF-' + YYYY + MM + DD + '.xlsx')
+        wb_CF.save('\\\\ip\\path\\VAN-CF-' + YYYY + MM + DD + '.xlsx')
+        li_CF = wb_CF.sheets["sheet1"].range('AG5:AK15').value
+        wb_sum.sheets["工作表1"].range('L2').options(index=False, header=False).value = li_CF
+        wb_sum.sheets["工作表2"].range('B1').value = 1
+    except:
+        print('CF檔案可能不存在')
+    
+    
+if check_list[1] == 0:
+    try:
+        wb_st = xw.Book('\\\\ip\\path\\VAN-st-' + YYYY + MM + DD + '.xlsx')
+        wb_st.save('\\\\ip\\path\\VAN-st-' + YYYY + MM + DD + '.xlsx')
+        li_st = wb_st.sheets["sheet1"].range('AG5:AK15').value
+        wb_sum.sheets["工作表1"].range('R2').options(index=False, header=False).value = li_st
+        wb_sum.sheets["工作表2"].range('B2').value = 1
+    except:
+        print('st檔案可能不存在')        
+
+
+if check_list[2] == 0:
+    try:
+        wb_Svf = xw.Book('\\\\ip\\path\\Svf-' + YYYY + MM + DD + '.xlsx')
+        li_Svf1  = wb_Svf.sheets["sheet1"].range('I9:L49').value
+        li_Svf2  = wb_Svf.sheets["sheet1"].range('M40:N49').value
+        wb_Svf.close()
+        wb_sum.sheets["工作表1"].range('G2').options(index=False, header=False).value = li_Svf1
+        wb_sum.sheets["工作表1"].range('I33').options(index=False, header=False).value = li_Svf2
+        wb_sum.sheets["工作表2"].range('B3').value = 1
+    except:
+        print('Svf檔案可能不存在')   
+
+
+if check_list[3] == 0:
+    try:
+        wb_Volume = xw.Book('\\\\ip\\path\\MT4-Volume' + YYYY + MM + DD + '.xlsx')
+        li_Volume1  = wb_Volume.sheets["sheet1"].range('A37:C66').value
+        li_Volume2  = wb_Volume.sheets["sheet1"].range('J111:L114').value
+        wb_Volume.close()
+        wb_sum.sheets["工作表1"].range('C2').options(index=False, header=False).value = li_Volume1
+        wb_sum.sheets["工作表1"].range('C33').options(index=False, header=False).value = li_Volume2
+        wb_sum.sheets["工作表2"].range('B4').value = 1
+    except:
+        print('Volume檔案可能不存在')  
+
+
+if check_list[4] == 0:
+    try:
+        wb_DepWit = xw.Book('\\\\ip\\path\\出入金-' + YYYY + MM + DD + '.xlsx')
+        li_DepWit1  = wb_DepWit.sheets["sheet1"].range('A2:I15').value
+        li_DepWit2  = wb_DepWit.sheets["sheet2"].range('A15').value
+        li_DepWit3  = wb_DepWit.sheets["sheet2"].range('F15:I15').value
+        li_DepWit4  = wb_DepWit.sheets["sheet2"].range('B15:E15').value
+        wb_DepWit.close()
+        wb_sum.sheets["工作表1"].range('L17').options(index=False, header=False).value = li_DepWit1
+        wb_sum.sheets["工作表1"].range('L31').options(index=False, header=False).value = li_DepWit2
+        wb_sum.sheets["工作表1"].range('M31').options(index=False, header=False).value = li_DepWit3
+        wb_sum.sheets["工作表1"].range('Q31').options(index=False, header=False).value = li_DepWit4
+        wb_sum.sheets["工作表2"].range('B5').value = 1
+    except:
+        print('DepWit檔案可能不存在')  
+
+
+if check_list[13] == 0:
+    try:
+        df_or = pd.read_csv('C:\\Users\\0214\\Downloads\\' + date1 + '_or_pnl_report.csv')
+        df_kc = pd.read_csv('C:\\Users\\0214\\Downloads\\' + date1 + '_kc_pnl_report.csv')
+        df_vt = pd.read_csv('C:\\Users\\0214\\Downloads\\' + date1 + '_vt_pnl_report.csv')
+        it_pnl = [["IT pnl",""],["OR B/SBook",""],[df_or.iloc[:,1].sum(),""],[df_or.iloc[:,2].sum(),""],["KC B/SBook",""],[df_kc.iloc[:,1].sum(),""],[df_kc.iloc[:,2].sum(),""],["VT B/SBook",""],[df_vt.iloc[:,1].sum(),""],[df_vt.iloc[:,2].sum(),""]]
+        wb_sum.sheets["工作表1"].range('A2').options(index=False, header=False).value = it_pnl
+        wb_sum.sheets["工作表2"].range('B14').value = 1
+    except:
+        print('IT pnl檔案可能不存在')  
+
+
+if check_list[5] == 0:
+    try:
+        wb_BOC = xw.Book('\\\\ip\\path\\BOC ' + YYYY + MM + DD + '.xlsx')
+        wb_BOC.save('\\\\ip\\path\\BOC ' + YYYY + MM + DD + '.xlsx')
+        li_BOC1 = wb_BOC.sheets["sheet1"].range('S5:T18').value
+        li_BOC2 = wb_BOC.sheets["sheet1"].range('L16:Q16').value
+        li_BOC3 = wb_BOC.sheets["sheet1"].range('L29:Q29').value
+        li_BOC4 = wb_BOC.sheets["sheet2"].range('S5:T18').value
+        wb_sum.sheets["工作表3"].range('A10').options(index=False, header=False).value = li_BOC1
+        wb_sum.sheets["工作表3"].range('A3').options(index=False, header=False).value = li_BOC2
+        wb_sum.sheets["工作表3"].range('A4').options(index=False, header=False).value = li_BOC3
+        wb_sum.sheets["工作表3"].range('D10').options(index=False, header=False).value = li_BOC4
+        wb_sum.sheets["工作表2"].range('B6').value = 1
+    except:
+        print('BOC檔案可能不存在')        
+        
+        
+if check_list[6] == 0:
+    try:
+        wb_SOC = xw.Book('\\\\ip\\path\\SOC-' + YYYY + MM + DD + '.xlsx')
+        wb_SOC.save('\\\\ip\\path\\SOC-' + YYYY + MM + DD + '.xlsx')
+        li_SOC1  = wb_SOC.sheets["sheet1"].range('D13:E15').value
+        li_SOC2  = wb_SOC.sheets["sheet1"].range('D19:E21').value
+        wb_SOC.close()
+        wb_sum.sheets["工作表3"].range('A26').options(index=False, header=False).value = li_SOC1
+        wb_sum.sheets["工作表3"].range('D26').options(index=False, header=False).value = li_SOC2
+        wb_sum.sheets["工作表2"].range('B7').value = 1
+    except:
+        print('SOC檔案可能不存在')   
+        
+        
+if check_list[7] == 0:
+    try:
+        wb_BVT = xw.Book('\\\\ip\\path\\BVT-' + YYYY + MM + DD + '.xlsx')
+        wb_BVT.save('\\\\ip\\path\\BVT-' + YYYY + MM + DD + '.xlsx')
+        li_BVT1 = wb_BVT.sheets["sheet1"].range('T5:U18').value
+        li_BVT2 = wb_BVT.sheets["sheet1"].range('L16:R16').value
+        li_BVT3 = wb_BVT.sheets["sheet1"].range('L29:R29').value
+        wb_sum.sheets["工作表3"].range('H10').options(index=False, header=False).value = li_BVT1
+        wb_sum.sheets["工作表3"].range('H3').options(index=False, header=False).value = li_BVT2
+        wb_sum.sheets["工作表3"].range('H4').options(index=False, header=False).value = li_BVT3
+        wb_sum.sheets["工作表2"].range('B8').value = 1
+    except:
+        print('BVT檔案可能不存在')     
+        
+        
+if check_list[8] == 0:
+    try:
+        wb_BKC = xw.Book('\\\\ip\\path\\BKC-' + YYYY + MM + DD + '.xlsx')
+        wb_BKC.save('\\\\ip\\path\\BKC-' + YYYY + MM + DD + '.xlsx')
+        li_BKC1 = wb_BKC.sheets["sheet1"].range('T5:U18').value
+        li_BKC2 = wb_BKC.sheets["sheet1"].range('L16:R16').value
+        li_BKC3 = wb_BKC.sheets["sheet1"].range('L29:R29').value
+        wb_sum.sheets["工作表3"].range('L10').options(index=False, header=False).value = li_BKC1
+        wb_sum.sheets["工作表3"].range('H6').options(index=False, header=False).value = li_BKC2
+        wb_sum.sheets["工作表3"].range('H7').options(index=False, header=False).value = li_BKC3
+        wb_sum.sheets["工作表2"].range('B9').value = 1
+    except:
+        print('BKC檔案可能不存在')     
+        
+        
+if check_list[9] == 0:
+    try:
+        wb_BVI = xw.Book('\\\\ip\\path\\BVI-' + YYYY + MM + DD + '.xlsx')
+        wb_BVI.save('\\\\ip\\path\\BVI-' + YYYY + MM + DD + '.xlsx')
+        wb_BVI.close()
+        wb_sum.sheets["工作表2"].range('B10').value = 1
+    except:
+        print('BVIG檔案可能不存在')     
+        
+        
+if check_list[10] == 0:
+    try:
+        wb_SVI = xw.Book('\\\\ip\\path\\SVI-' + YYYY + MM + DD + '.xlsx')
+        wb_SVI.save('\\\\ip\\path\\SVI-' + YYYY + MM + DD + '.xlsx')
+        wb_SVI.close()
+        wb_sum.sheets["工作表2"].range('B11').value = 1
+    except:
+        print('SVIG檔案可能不存在') 
+        
+        
+if check_list[11] == 0:
+    try:
+        wb_VFDepWit = xw.Book('\\\\ip\\path\\VF出入金' + YYYY + MM + DD + '.xlsx')
+        li_VFDepWit  = wb_VFDepWit.sheets["sheet1"].range('Z43:AA49').value
+        wb_VFDepWit.close()
+        wb_sum.sheets["工作表1"].range('L33').options(index=False, header=False).value = li_VFXDepWit
+        wb_sum.sheets["工作表2"].range('B12').value = 1
+    except:
+        print('VFDepWit檔案可能不存在')   
+        
+        
+if check_list[12] == 0:
+    try:
+        wb_Bvf = xw.Book('\\\\ip\\path\\B PNL\\B -PNL-vf-' + YYYY + MM + DD + '.xlsx')
+        li_Bvf1 = wb_Bvf.sheets["sheet1"].range('Y62:Z87').value
+        li_Bvf2 = wb_Bvf.sheets["sheet2"].range('Y62:Z87').value
+        wb_Bvf.close()
+        wb_sum.sheets["工作表3"].range('P10').options(index=False, header=False).value = li_Bvf1
+        wb_sum.sheets["工作表3"].range('S10').options(index=False, header=False).value = li_Bvf2
+        wb_sum.sheets["工作表2"].range('B13').value = 1
+    except:
+        print('Bvf檔案可能不存在')     
+        
+        
+app.quit()
+        
+        
