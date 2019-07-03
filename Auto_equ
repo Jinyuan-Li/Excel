@@ -163,4 +163,3 @@ def equity_sub():
 equity_main()
 equity_sub()
 app.quit()
-
