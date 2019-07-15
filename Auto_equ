@@ -24,7 +24,7 @@ date1, datey, datet = YYYY + '-' + MM + '-' + DD, YYYYy + '-' + MMy + '-' + DDy,
 app = xw.App(visible=True,add_book=False)
 wb_eod = xw.Book(r'C:\\Users\\0214\\Downloads\\EOD - ' + YYYY + '.' + MM + '.' + DD + '.csv')
 row_eod_new = wb_eod.sheets["sheet1"].range('A1').current_region.last_cell.row
-df_eod = wb_eod.sheets["sheet1"].range('A2:F' + str(row_eod_new)).value
+li_eod = wb_eod.sheets["sheet1"].range('A2:F' + str(row_eod_new)).value
 #wb_eod.close()
 
 
@@ -39,9 +39,9 @@ def equity_main():
     wb_main.sheets["sheet3"].range('N5').value = copy_paste_m3
     
     row_MT5_newm = wb_datam.sheets["sheet4"].range('A1').current_region.last_cell.row
-    df_MT5m = wb_datam.sheets["sheet4"].range('A2:P' + str(row_MT5_newm)).value
+    li_MT5m = c
     row_MT5_oldm = wb_main.sheets["sheet4"].range('A1').current_region.last_cell.row
-    wb_main.sheets["sheet4"].range('A2').options(index=False, header=False).value = df_MT5m
+    wb_main.sheets["sheet4"].range('A2').options(index=False, header=False).value = li_MT5m
     if row_MT5_newm < row_MT5_oldm:
         wb_main.sheets["sheet4"].range('A' + str(row_MT5_newm + 1) + ':P' + str(row_MT5_oldm)).value = None
     if row_MT5_newm > row_MT5_oldm:
@@ -49,9 +49,9 @@ def equity_main():
         wb_main.sheets["sheet4"].range('Q' + str(row_MT5_oldm) + ':V' + str(row_MT5_newm)).options(ndim=1).formula = paste_formulama
     
     row_IX_newm = wb_datam.sheets["sheet5"].range('A1').current_region.last_cell.row
-    df_IXm = wb_datam.sheets["sheet5"].range('A2:P' + str(row_IX_newm)).value
+    li_IXm = wb_datam.sheets["sheet5"].range('A2:P' + str(row_IX_newm)).value
     row_IX_oldm = wb_main.sheets["sheet5"].range('A1').current_region.last_cell.row
-    wb_main.sheets["sheet5"].range('A2').options(index=False, header=False).value = df_IXm
+    wb_main.sheets["sheet5"].range('A2').options(index=False, header=False).value = li_IXm
     if row_IX_newm < row_IX_oldm:
         wb_main.sheets["sheet5"].range('A' + str(row_IX_newm + 1) + ':P' + str(row_IX_oldm)).value = None
     if row_IX_newm > row_IX_oldm:
@@ -59,9 +59,9 @@ def equity_main():
         wb_main.sheets["sheet5"].range('Q' + str(row_IX_oldm) + ':U' + str(row_IX_newm)).options(ndim=1).formula = paste_formulami
     
     row_raw_newm = wb_datam.sheets["sheet6"].range('A1').current_region.last_cell.row
-    df_rawm = wb_datam.sheets["sheet6"].range('A2:L' + str(row_raw_newm)).value
+    li_rawm = wb_datam.sheets["sheet6"].range('A2:L' + str(row_raw_newm)).value
     row_raw_oldm = wb_main.sheets["sheet6"].range('A1').current_region.last_cell.row
-    wb_main.sheets["sheet6"].range('A2').options(index=False, header=False).value = df_rawm
+    wb_main.sheets["sheet6"].range('A2').options(index=False, header=False).value = li_rawm
     if row_raw_newm < row_raw_oldm:
         wb_main.sheets["sheet6"].range('A' + str(row_raw_newm + 1) + ':L' + str(row_raw_oldm)).value = None
     if row_raw_newm > row_raw_oldm:
@@ -69,7 +69,7 @@ def equity_main():
         wb_main.sheets["sheet6"].range('O' + str(row_raw_oldm) + ':U' + str(row_raw_newm)).options(ndim=1).formula = paste_formulamr
     
     row_eod_oldm = wb_main.sheets["EOD"].range('A1').current_region.last_cell.row
-    wb_main.sheets["EOD"].range('A2').options(index=False, header=False).value = df_eod
+    wb_main.sheets["EOD"].range('A2').options(index=False, header=False).value = li_eod
     if row_eod_new < row_eod_oldm:
         wb_main.sheets["EOD"].range('A' + str(row_eod_new + 1) + ':F' + str(row_eod_oldm)).value = None
     
@@ -84,12 +84,6 @@ def equity_main():
     wb_main.api.ActiveSheet.PivotTables("数据透视表1").PivotCache().refresh()
     wb_main.api.ActiveSheet.PivotTables("樞紐分析表4").PivotCache().refresh()
     wb_main.api.ActiveSheet.PivotTables("樞紐分析表3").PivotCache().refresh()
-    wb_main.sheets["sheet2"].select()
-    wb_main.api.ActiveSheet.PivotTables("樞紐分析表1").PivotCache().refresh()
-    wb_main.api.ActiveSheet.PivotTables("樞紐分析表2").PivotCache().refresh()
-    wb_main.sheets["sheet3"].select()
-    wb_main.api.ActiveSheet.PivotTables("数据透视表3").PivotCache().refresh()
-    wb_main.api.ActiveSheet.PivotTables("数据透视表4").PivotCache().refresh()
     
     wb_main.save(r'D:\\Report\\equity-auto\\equ-auto-' + MM + DD + '.xlsx')
 
@@ -105,9 +99,9 @@ def equity_sub():
     wb_subn.sheets["sheet3"].range('N6').value = copy_paste_s3
     
     row_MT5_news = wb_datas.sheets["sheet4"].range('A1').current_region.last_cell.row
-    df_MT5s = wb_datas.sheets["sheet4"].range('A2:P' + str(row_MT5_news)).value
+    li_MT5s = wb_datas.sheets["sheet4"].range('A2:P' + str(row_MT5_news)).value
     row_MT5_olds = wb_subn.sheets["sheet4"].range('A1').current_region.last_cell.row
-    wb_subn.sheets["sheet4"].range('A2').options(index=False, header=False).value = df_MT5s
+    wb_subn.sheets["sheet4"].range('A2').options(index=False, header=False).value = li_MT5s
     if row_MT5_news < row_MT5_olds:
         wb_subn.sheets["sheet4"].range('A' + str(row_MT5_news + 1) + ':P' + str(row_MT5_olds)).value = None
     if row_MT5_news > row_MT5_olds:
@@ -115,9 +109,9 @@ def equity_sub():
         wb_subn.sheets["sheet4"].range('Q' + str(row_MT5_olds) + ':V' + str(row_MT5_news)).options(ndim=1).formula = paste_formulasa
     
     row_IX_news = wb_datas.sheets["sheet5"].range('A1').current_region.last_cell.row
-    df_IXs = wb_datas.sheets["sheet5"].range('A2:P' + str(row_IX_news)).value
+    li_IXs = wb_datas.sheets["sheet5"].range('A2:P' + str(row_IX_news)).value
     row_IX_olds = wb_subn.sheets["sheet5"].range('A1').current_region.last_cell.row
-    wb_subn.sheets["sheet5"].range('A2').options(index=False, header=False).value = df_IXs
+    wb_subn.sheets["sheet5"].range('A2').options(index=False, header=False).value = li_IXs
     if row_IX_news < row_IX_olds:
         wb_subn.sheets["sheet5"].range('A' + str(row_IX_news + 1) + ':P' + str(row_IX_olds)).value = None
     if row_IX_news > row_IX_olds:
@@ -125,9 +119,9 @@ def equity_sub():
         wb_subn.sheets["sheet5"].range('Q' + str(row_IX_olds) + ':V' + str(row_IX_news)).options(ndim=1).formula = paste_formulasiim=1).formula = paste_formulasi
     
     row_raw_news = wb_datas.sheets["sheet6"].range('A1').current_region.last_cell.row
-    df_raws = wb_datas.sheets["sheet6"].range('A2:L' + str(row_raw_news)).value
+    li_raws = wb_datas.sheets["sheet6"].range('A2:L' + str(row_raw_news)).value
     row_raw_olds = wb_subn.sheets["sheet6"].range('A1').current_region.last_cell.row
-    wb_subn.sheets["sheet6"].range('A2').options(index=False, header=False).value = df_raws
+    wb_subn.sheets["sheet6"].range('A2').options(index=False, header=False).value = li_raws
     if row_raw_news < row_raw_olds:
         wb_subn.sheets["sheet6"].range('A' + str(row_raw_news + 1) + ':L' + str(row_raw_olds)).value = None
     if row_raw_news > row_raw_olds:
@@ -135,7 +129,7 @@ def equity_sub():
         wb_subn.sheets["sheet6"].range('O' + str(row_raw_olds) + ':U' + str(row_raw_news)).options(ndim=1).formula = paste_formulasr
    
     row_eod_olds = wb_subn.sheets["EOD"].range('A1').current_region.last_cell.row
-    wb_subn.sheets["EOD"].range('A2').options(index=False, header=False).value = df_eod
+    wb_subn.sheets["EOD"].range('A2').options(index=False, header=False).value = li_eod
     if row_eod_new < row_eod_olds:
         wb_subn.sheets["EOD"].range('A' + str(row_eod_new + 1) + ':F' + str(row_eod_olds)).value = None
     
@@ -150,12 +144,6 @@ def equity_sub():
     wb_subn.api.ActiveSheet.PivotTables("数据透视表1").PivotCache().refresh()
     wb_subn.api.ActiveSheet.PivotTables("樞紐分析表7").PivotCache().refresh()
     wb_subn.api.ActiveSheet.PivotTables("樞紐分析表5").PivotCache().refresh()
-    wb_subn.sheets["sheet2"].select()
-    wb_subn.api.ActiveSheet.PivotTables("樞紐分析表1").PivotCache().refresh()
-    wb_subn.api.ActiveSheet.PivotTables("樞紐分析表4").PivotCache().refresh()
-    wb_subn.sheets["sheet3"].select()
-    wb_subn.api.ActiveSheet.PivotTables("数据透视表3").PivotCache().refresh()
-    wb_subn.api.ActiveSheet.PivotTables("数据透视表4").PivotCache().refresh()
     
     wb_subn.save(r'D:\\Report\\equity-auto\\equ-auto-' + MM + DD + 'sub.xlsx')
 
