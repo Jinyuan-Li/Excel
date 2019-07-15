@@ -27,17 +27,6 @@ wb_sum = xw.Book(r'D:\\Report\\Summary.xlsx')
 check_list = wb_sum.sheets["工作表2"].range('B1:B20').value
 
 
-if check_list[0] == 0:
-    try:
-        wb_CF = xw.Book('\\\\ip\\path\\VAN-CF-' + YYYY + MM + DD + '.xlsx')
-        wb_CF.save('\\\\ip\\path\\VAN-CF-' + YYYY + MM + DD + '.xlsx')
-        li_CF = wb_CF.sheets["sheet1"].range('AG5:AK15').value
-        wb_sum.sheets["工作表1"].range('L2').options(index=False, header=False).value = li_CF
-        wb_sum.sheets["工作表2"].range('B1').value = 1
-    except:
-        print('CF檔案可能不存在')
-    
-    
 if check_list[1] == 0:
     try:
         wb_st = xw.Book('\\\\ip\\path\\VAN-st-' + YYYY + MM + DD + '.xlsx')
@@ -164,38 +153,7 @@ if check_list[8] == 0:
     except:
         print('BKC檔案可能不存在')     
         
-        
-if check_list[9] == 0:
-    try:
-        wb_BVI = xw.Book('\\\\ip\\path\\BVI-' + YYYY + MM + DD + '.xlsx')
-        wb_BVI.save('\\\\ip\\path\\BVI-' + YYYY + MM + DD + '.xlsx')
-        wb_BVI.close()
-        wb_sum.sheets["工作表2"].range('B10').value = 1
-    except:
-        print('BVI檔案可能不存在')     
-        
-        
-if check_list[10] == 0:
-    try:
-        wb_SVI = xw.Book('\\\\ip\\path\\SVI-' + YYYY + MM + DD + '.xlsx')
-        wb_SVI.save('\\\\ip\\path\\SVI-' + YYYY + MM + DD + '.xlsx')
-        wb_SVI.close()
-        wb_sum.sheets["工作表2"].range('B11').value = 1
-    except:
-        print('SVI檔案可能不存在') 
-        
-        
-if check_list[11] == 0:
-    try:
-        wb_VFDepWit = xw.Book('\\\\ip\\path\\VF出入金' + YYYY + MM + DD + '.xlsx')
-        li_VFDepWit  = wb_VFDepWit.sheets["sheet1"].range('Z43:AA49').value
-        wb_VFDepWit.close()
-        wb_sum.sheets["工作表1"].range('L33').options(index=False, header=False).value = li_VFXDepWit
-        wb_sum.sheets["工作表2"].range('B12').value = 1
-    except:
-        print('VFDepWit檔案可能不存在')   
-        
-        
+            
 if check_list[12] == 0:
     try:
         wb_Bvf = xw.Book('\\\\ip\\path\\B PNL\\B -PNL-vf-' + YYYY + MM + DD + '.xlsx')
